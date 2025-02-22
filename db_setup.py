@@ -1,7 +1,7 @@
 import sqlite3
 
 def create_feedback_table():
-    conn = sqlite3.connect('feedback.db')
+    conn = sqlite3.connect('db/feedback.db')
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS feedback (
