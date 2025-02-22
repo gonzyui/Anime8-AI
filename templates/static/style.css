@@ -1,0 +1,130 @@
+:root {
+  --bg-color: #f4f7f9;
+  --text-color: #333;
+  --chat-bg: #fff;
+  --user-bg: #007bff;
+  --user-color: #fff;
+  --bot-bg: #e9ecef;
+  --bot-color: #333;
+  --border-color: #ccc;
+  --footer-bg: #fff;
+  --footer-border: #ccc;
+}
+
+body.dark {
+  --bg-color: #1e1e1e;
+  --text-color: #eee;
+  --chat-bg: #2c2c2c;
+  --user-bg: #0d6efd;
+  --user-color: #fff;
+  --bot-bg: #3a3a3a;
+  --bot-color: #eee;
+  --border-color: #555;
+  --footer-bg: #2c2c2c;
+  --footer-border: #555;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: sans-serif;
+}
+
+#mainWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--bg-color);
+}
+
+.container {
+  flex: 1;
+  padding: 20px;
+  background: transparent;
+  color: var(--text-color);
+}
+
+h1, p, footer p {
+  color: var(--text-color);
+}
+
+#chatWindow {
+  height: 400px;
+  max-width: 600px;
+  margin: 20px auto;
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  overflow-y: auto;
+  background: var(--chat-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.message {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 75%;
+  word-wrap: break-word;
+  display: flex;
+  flex-direction: column;
+}
+
+.user {
+  background: var(--user-bg);
+  color: var(--user-color);
+  align-self: flex-end;
+}
+
+.bot {
+  background: var(--bot-bg);
+  color: var(--bot-color);
+  align-self: flex-start;
+}
+
+.rec-item {
+  border-top: 1px solid var(--border-color);
+  padding-top: 5px;
+  margin-top: 5px;
+}
+
+.feedback-buttons i {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+#inputContainer {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#chatInput {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  width: 100%;
+}
+
+#sendButton {
+  margin-left: 10px;
+}
+
+footer {
+  background: var(--footer-bg);
+  padding: 15px 0;
+  border-top: 1px solid var(--footer-border);
+  text-align: center;
+  color: var(--text-color);
+}
