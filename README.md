@@ -154,14 +154,14 @@ Anim8 is an anime recommendation API that leverages data from Anilist. It uses a
 1. **Clone the Repository:**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/gonzyui/Anime8-AI
    cd Anim8
    ```
 
 2. **Install Dependencies: Ensure you have Python installed, then install the required packages:**
 
     ```bash
-    pip install flash requests scikit-learn numpy
+    pip install flask requests scikit-learn numpy
     ```
 
 3. **Initialize the Database:** Create the `db`folder and initialize your SQLite database.
