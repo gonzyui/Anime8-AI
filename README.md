@@ -1,190 +1,146 @@
-# Anime8 API Documentation
+# Anime8 API
 
-Anime8 is an anime recommendation system that uses data from Anilist and a content-based recommendation algorithm (TF-IDF and cosine similarity) to suggest anime titles. It incorporates user feedback (like/dislike) to adjust recommendation scores and "auto-train" the system over time.
-
----
+Anime8 API is an asynchronous API built with Flask that provides personalized recommendations for anime and manga. It retrieves a user's media list from Anilist and/or uses provided textual preferences to generate recommendations. The API leverages a simple AI model implemented in PyTorch to score and rank media items based on their genre features and user feedback.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Features](#features)
 - [API Endpoints](#api-endpoints)
-  - [GET `/`](#get-)
-  - [POST `/get_recommendations`](#post-get_recommendations)
-  - [GET `/recommendations`](#get-recommendations)
-  - [POST `/feedback`](#post-feedback)
-  - [POST `/retrain`](#post-retrain)
-- [Notes](#notes)
-- [Setup & Installation](#setup--installation)
-- [Additional Notes](#additional-notes)
-
----
+  - [Get Recommendations](#get-recommendations)
+  - [Submit Feedback](#submit-feedback)
+  - [Trigger Auto Training](#trigger-auto-training)
+- [Model Explanation](#model-explanation)
+- [Setup and Installation](#setup-and-installation)
+- [Usage](#usage)
 
 ## Overview
 
-Anime8 is an anime recommendation API that leverages data from Anilist. It uses a content-based approach (TF-IDF + cosine similarity) to calculate similarity scores between anime. Additionally, user feedback is integrated into the recommendation process so that the system continuously improves over time.
-
----
-
-## Features
-
-- **Content-Based Recommendations:**  
-  Uses TF-IDF vectorization and cosine similarity to generate recommendations based on user-provided preferences or Anilist data.
-
-- **Auto-Training via Feedback:**  
-  Incorporates user feedback (likes/dislikes) into the scoring algorithm. The system retrieves average ratings from the feedback database and adjusts recommendation scores accordingly.
-
-- **Exclusion of Duplicates:**  
-  New recommendations exclude anime IDs that have already been shown to avoid repetition.
-
-- **Randomization:**  
-  A small random factor (±15%) is applied to recommendation scores to provide varied results on subsequent calls.
-
-- **Chatbot Interface:**  
-  A user-friendly, chatbot-style web interface displays recommendations as chat bubbles and allows users to submit feedback directly.
-
-- **Multi-Theme Support:**  
-  Users can toggle between light and dark themes, which affects the entire UI.
-
----
+The Anime8 API provides personalized recommendations for anime and manga. It fetches data from the Anilist GraphQL API and uses user-provided preferences or a user's media list to generate recommendations. The recommendation engine is powered by a custom PyTorch model (named **RecommenderNet**) that uses genre information to compute a suitability score for each media item. Feedback from users is stored in a SQLite database and can be used to retrain the model via an auto-training endpoint.
 
 ## API Endpoints
 
-### GET `/`
-- **Description:**  
-  Returns the homepage (web interface) of the Anime8 chatbot.
-- **Response:**  
-  - **Status Code:** 200  
-  - **Content:** HTML page with the Anime8 chatbot interface.
+### Get Recommendations
 
----
+**Endpoint:** `GET /recommendations`
 
-### POST `/get_recommendations`
-- **Description:**  
-  Returns anime recommendations in an HTML format based on form submission.
-- **Parameters (form data):**
-  - `username` (string, optional): The Anilist username.
-  - `preferences` (string, optional): A free-text description of user preferences.
+**Description:**
+Returns a list of recommendations based on either an Anilist username or a preferences text.  
+If a username is provided, the API retrieves the user's media list from Anilist and excludes items that have been recommended before (with a small chance for repeats). Otherwise, recommendations are generated solely based on the provided preferences.
+
+**Query Parameters:**
+- `username` (string, optional): The Anilist username.
+- `preferences` (string, optional): A textual description of the user's media preferences.
+- `media_type` (string, optional, default: `ANIME`): The type of media, either `ANIME` or `MANGA`.
+
+**Response Example:**
+```json
+{
+  "recommendations": [
+    { "id": 12345, "title": "Example Anime", "score": 8.75 },
+    { "id": 67890, "title": "Another Anime", "score": 7.60 }
+  ]
+}
+```
+
+### Submit Feedback
+
+**Endpoint:** `POST /feedback`
+
+**Description:**
+Records user feedback for a recommended media item. 
+The feedback data is used later to retrain the recommendation model.
+
+**Request Body (JSON):**
+```json
+{
+  "username": "example",
+  "anime_id": 1273,
+  "rating": 8
+}
+```
+**Response Example:**
+```json
+{
+  "message": "Feedback recorded"
+}
+```
+
+### Trigger Auto Training
+
+**Endpoint:** `POST /auto_train`
+
+**Description:**
+Triggers auto-training of the recommendation model using stored user feedback.
+This endpoint is protected by an API key (via the `x-api-key` header) and is exempt from rate limits if a valid key is provided.
+
+**Headers:**
+
+- `X-API-KEY` (string, required): API key for authorization
+
+**Response Example:**
+```json
+{
+  "message": "Training completed",
+  "loss": 0.0543
+}
+```
+
+### Model Explanation
+
+The recommendation model, **RecommenderNet**, is implemented in PyTorch as a simple feed-forward neural network:
+
+- **Input:**
+
+  The model receives a concatenated vector consisting of:
+  - A user profile vector derived from the user's media list or preferences.
+  - A candidate media's genre vector, where each genre is represented as a binary indicator (1 if present, 0 if not).
+- **Architecture:**
+
+  - **Hidden Layer:** 16 units with ReLU activation.
+  - **Output Layer:** A single linear unit that produces a score.
+- **Training**
+
+  The model is trained by using Mean Squared Error (MSE) loss. User feedback ratings (ranging from 0 for poor to 10 for perfect) are used as target values. The training process adjusts the model's parameters so that its predicted scores reflect the quality of the media as perceived by users.
+
+## Setup and Installation
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/gonzyui/Anime8-AI
+cd Anime8-AI
+```
+2. **Create a virtual environment and activate it:**
+```bash
+python -m venv venv
+source /venv/bin/active # On windows: venv\Scripts\activate
+```
+3. **Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+4. **Configure environment variables:**
+Create a `.env` file at the root of the project with:
+```env
+SECRET_KEY=your_secret_key
+AUTO_TRAIN_API_KEY=your_api_key
+DB_NAME=media_feedback.db
+```
+5. **Set up the database:**
+```bash
+python db/setup.py
+```
+
+## Usage
+
+- **Start the API:**
+
+  Run the application:
+  ```bash
+  python run.py
+  ```
+- **Access API Endpoints:**
   
-  *At least one of these must be provided.*
-  
-- **Response:**  
-  - **Status Code:** 200  
-  - **Content:** HTML page (`index.html`) displaying the recommendations.
-
----
-
-### GET `/recommendations`
-- **Description:**  
-  Returns anime recommendations in JSON format.
-- **Parameters (query string):**
-  - `username` (string, required): The Anilist username.
-- **Response:**  
-  - **Status Code:** 200 (or 400 if the parameter is missing)
-  - **Content (JSON):**
-    ```json
-    {
-      "recommendations": [
-        {
-          "id": 12345,
-          "title": "Anime Title",
-          "similarity": 0.87
-        },
-        ...
-      ]
-    }
-    ```
-
----
-
-### POST `/feedback`
-- **Description:**  
-  Records user feedback for a given anime.
-- **Parameters (JSON in request body):**
-  - `username` (string, required): The username providing feedback.
-  - `anime_id` (number, required): The anime's identifier.
-  - `rating` (number, required): The feedback value (e.g., `1` for like, `-1` for dislike).
-- **Response:**  
-  - **Status Code:** 200 (or 400 if any parameter is missing)
-  - **Content (JSON):**
-    ```json
-    {
-      "message": "Feedback recorded"
-    }
-    ```
-
----
-
-### POST `/retrain`
-- **Description:**  
-  Returns new anime recommendations, taking into account user feedback and excluding already displayed anime. This endpoint enables the system to "auto-train" and update recommendations over time.
-- **Parameters (JSON in request body):**
-  - `username` (string, optional): The Anilist username.
-  - `preferences` (string, optional): A free-text description of user preferences.
-  
-  *At least one must be provided.*
-  
-  - `prev_ids` (array of strings, optional): A list of anime IDs that have already been displayed (to avoid duplicates).
-- **Response:**  
-  - **Status Code:** 200 (or 400 if no preference is provided)
-  - **Content (JSON):**
-    ```json
-    {
-      "recommendations": [
-        {
-          "id": 54321,
-          "title": "Another Anime",
-          "similarity": 0.92
-        },
-        ...
-      ]
-    }
-    ```
-
-## Notes 
-**Notes:**
-- **Database:** The SQLite database file is stored in the `/db` folder. Update all database connection strings to use `sqlite3.connect('db/feedback.db')`.
-- **Templates:** All HTML files reside in the `/templates` folder.
-- **Static Assets:** CSS and JavaScript files are in the `/static` folder.
-
----
-
-## Setup & Installation
-
-1. **Clone the Repository:**
-
-   ```bash
-   git clone https://github.com/gonzyui/Anime8-AI
-   cd Anime8-AI
-   ```
-
-2. **Install Dependencies: Ensure you have Python installed, then install the required packages:**
-
-    ```bash
-    pip install flask requests scikit-learn numpy
-    ```
-
-3. **Initialize the Database:** Create the `db`folder and initialize your SQLite database.
-
-4. **Run the Application:** From the project root, start the Flask server:
-
-    ```py
-    python app.py
-    ```
-
-## Additional Notes
-
-### Auto-Training Enhancements
-- The recommendation functions accept an `exclude_ids` parameter to avoid displaying duplicate anime.
-- A random factor (±15%) is applied to recommendation scores to vary the results.
-- User feedback (likes/dislikes) is averaged and used to adjust scores, enabling the system to improve over time.
-
-### User Interface
-- The chatbot-style web interface displays a default message prompting the user to enter their Anilist username or preferences.
-- Recommendations are shown as chat bubbles with like/dislike icons for feedback.
-- A refresh button allows users to request new recommendations.
-- A theme toggle button is provided for switching between light and dark modes, affecting the entire UI.
-
-### API Usage
-- For direct API calls, use the `/recommendations` endpoint with the required query parameters.
-- The feedback and retraining endpoints accept JSON payloads as detailed above.
+  Use your preferred API client (e.g., cURL, Postman) to send requests to endpoints such as:
+    - `GET http://localhost:5000/recommendations`
+    - `POST http://localhost:5000/feedback`
+    - `POST http://localhost:5000/auto_train`
