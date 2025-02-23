@@ -1,6 +1,6 @@
-# Anim8 API Documentation
+# Anime8 API Documentation
 
-Anim8 is an anime recommendation system that uses data from Anilist and a content-based recommendation algorithm (TF-IDF and cosine similarity) to suggest anime titles. It incorporates user feedback (like/dislike) to adjust recommendation scores and "auto-train" the system over time.
+Anime8 is an anime recommendation system that uses data from Anilist and a content-based recommendation algorithm (TF-IDF and cosine similarity) to suggest anime titles. It incorporates user feedback (like/dislike) to adjust recommendation scores and "auto-train" the system over time.
 
 ---
 
@@ -22,7 +22,7 @@ Anim8 is an anime recommendation system that uses data from Anilist and a conten
 
 ## Overview
 
-Anim8 is an anime recommendation API that leverages data from Anilist. It uses a content-based approach (TF-IDF + cosine similarity) to calculate similarity scores between anime. Additionally, user feedback is integrated into the recommendation process so that the system continuously improves over time.
+Anime8 is an anime recommendation API that leverages data from Anilist. It uses a content-based approach (TF-IDF + cosine similarity) to calculate similarity scores between anime. Additionally, user feedback is integrated into the recommendation process so that the system continuously improves over time.
 
 ---
 
@@ -52,10 +52,10 @@ Anim8 is an anime recommendation API that leverages data from Anilist. It uses a
 
 ### GET `/`
 - **Description:**  
-  Returns the homepage (web interface) of the Anim8 chatbot.
+  Returns the homepage (web interface) of the Anime8 chatbot.
 - **Response:**  
   - **Status Code:** 200  
-  - **Content:** HTML page with the Anim8 chatbot interface.
+  - **Content:** HTML page with the Anime8 chatbot interface.
 
 ---
 
@@ -155,7 +155,7 @@ Anim8 is an anime recommendation API that leverages data from Anilist. It uses a
 
    ```bash
    git clone https://github.com/gonzyui/Anime8-AI
-   cd Anim8
+   cd Anime8-AI
    ```
 
 2. **Install Dependencies: Ensure you have Python installed, then install the required packages:**

@@ -1,0 +1,7 @@
+Flask
+requests
+scikit-learn
+numpy
+flask-limiter
+python-dotenv
+torch
