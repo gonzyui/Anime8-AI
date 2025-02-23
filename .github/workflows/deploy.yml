@@ -41,4 +41,4 @@ jobs:
           script: |
             sudo supervisorctl reread
             sudo supervisorctl update
-            sudo supervisorctl restart anime8
+            sudo supervisorctl restart anime8 || sudo supervisorctl start anime8
