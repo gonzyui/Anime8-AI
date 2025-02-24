@@ -43,7 +43,6 @@ def create_app():
             process_time = time.time() - start
             response.headers["X-Process-Time"] = str(process_time)
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["X-Frame-Options"] = "SAMEORIGIN"
         response.headers["Content-Security-Policy"] = "default-src 'self'"
         return response
 
