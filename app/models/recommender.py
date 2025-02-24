@@ -1,13 +1,12 @@
-import os
-import numpy as np
-import torch
-import torch.nn as nn
 import torch.optim as optim
+import torch.nn as nn
+import numpy as np
 import sqlite3
+import torch
+import os
 
 GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Romance", "Sci-Fi", "Mystery",
           "Slice of Life", "Supernatural", "Sports", "Ecchi", "Mecha"]
-
 
 def genres_to_vector(genres_list):
     vec = np.zeros(len(GENRES), dtype=np.float32)
@@ -16,20 +15,22 @@ def genres_to_vector(genres_list):
             vec[GENRES.index(genre)] = 1.0
     return vec
 
-
 class RecommenderNet(nn.Module):
     def __init__(self, input_dim):
         super(RecommenderNet, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 16)
+        self.fc1 = nn.Linear(input_dim, 32)
         self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(16, 1)
+        self.dropout = nn.Dropout(0.3)
+        self.fc2 = nn.Linear(32, 16)
+        self.fc3 = nn.Linear(16, 1)
 
     def forward(self, x):
-        return self.fc2(self.relu(self.fc1(x)))
-
+        x = self.relu(self.fc1(x))
+        x = self.dropout(x)
+        x = self.relu(self.fc2(x))
+        return self.fc3(x)
 
 MODEL_PATH = os.path.join(os.getcwd(), 'model.pth')
-
 
 def load_model():
     input_dim = 2 * len(GENRES)
@@ -38,10 +39,8 @@ def load_model():
         model.load_state_dict(torch.load(MODEL_PATH))
     return model
 
-
 def save_model(model):
     torch.save(model.state_dict(), MODEL_PATH)
-
 
 def get_recommendations_from_corpus(user_data, corpus_data, n=5, randomize=False, exclude_ids=None):
     if exclude_ids is None:
@@ -79,14 +78,19 @@ def get_recommendations_from_corpus(user_data, corpus_data, n=5, randomize=False
 
     recs = []
     for media, score in zip(candidate_list, scores):
-        recs.append({'id': media.get('id'), 'title': media.get('title', {}).get('romaji'), 'score': float(score)})
+        recs.append({
+            'id': media.get('id'),
+            'title': media.get('title', {}).get('romaji'),
+            'description': media.get('description', 'No description available'),
+            'cover_image': media.get('coverImage', {}).get('large'),
+            'score': float(score)
+        })
 
     if randomize:
         for rec in recs:
             rec['score'] *= (1 + np.random.uniform(-0.15, 0.15))
 
     return sorted(recs, key=lambda x: x['score'], reverse=True)[:n]
-
 
 def get_recommendations_from_preferences(preferences_text, corpus_data, n=5, randomize=False, exclude_ids=None):
     if exclude_ids is None:
@@ -96,6 +100,7 @@ def get_recommendations_from_preferences(preferences_text, corpus_data, n=5, ran
     for i, genre in enumerate(GENRES):
         if genre.lower() in preferences_text:
             user_profile[i] = 1.0
+
     candidate_list = []
     candidate_vectors = []
     for media in corpus_data:
@@ -104,6 +109,7 @@ def get_recommendations_from_preferences(preferences_text, corpus_data, n=5, ran
         vec = genres_to_vector(media.get('genres', []))
         candidate_list.append(media)
         candidate_vectors.append(vec)
+
     if not candidate_vectors:
         raise Exception("No media available in corpus")
     inputs = [np.concatenate([user_profile, vec]) for vec in candidate_vectors]
@@ -116,7 +122,13 @@ def get_recommendations_from_preferences(preferences_text, corpus_data, n=5, ran
 
     recs = []
     for media, score in zip(candidate_list, scores):
-        recs.append({'id': media.get('id'), 'title': media.get('title', {}).get('romaji'), 'score': float(score)})
+        recs.append({
+            'id': media.get('id'),
+            'title': media.get('title', {}).get('romaji'),
+            'description': media.get('description', 'No description available'),
+            'cover_image': media.get('coverImage', {}).get('large'),
+            'score': float(score)
+        })
 
     if randomize:
         for rec in recs:
@@ -124,14 +136,12 @@ def get_recommendations_from_preferences(preferences_text, corpus_data, n=5, ran
 
     return sorted(recs, key=lambda x: x['score'], reverse=True)[:n]
 
-
 def train_model(epochs=10, lr=0.01):
     db_path = os.path.join(os.getcwd(), 'db', 'media_feedback.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute('SELECT username, anime_id, rating FROM feedback')
-    data = cursor.fetchall()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT username, anime_id, rating FROM feedback')
+        data = cursor.fetchall()
     if not data:
         return {"message": "No feedback data available for training."}
 
@@ -144,8 +154,7 @@ def train_model(epochs=10, lr=0.01):
         anime = corpus_dict.get(str(anime_id))
         if anime:
             vec = genres_to_vector(anime.get('genres', []))
-            user_profile = vec
-            features = np.concatenate([user_profile, vec])
+            features = np.concatenate([vec, vec])
             X.append(features)
             y.append(rating)
     if len(X) == 0:
@@ -160,11 +169,14 @@ def train_model(epochs=10, lr=0.01):
     optimizer = optim.Adam(model.parameters(), lr=lr)
     criterion = nn.MSELoss()
 
+    import logging
     for epoch in range(epochs):
         optimizer.zero_grad()
         outputs = model(inputs_tensor)
         loss = criterion(outputs, targets_tensor)
         loss.backward()
         optimizer.step()
+        logging.info(f"Epoch {epoch+1}/{epochs} - Loss: {loss.item():.4f}")
     save_model(model)
+    logging.info("Auto-Training complete and saved.")
     return {"message": "Training completed", "loss": loss.item()}

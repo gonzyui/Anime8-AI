@@ -9,11 +9,13 @@ def get_db_path():
 
 def insert_feedback(username, media_id, rating):
     db_path = get_db_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO feedback (username, anime_id, rating) VALUES (?, ?, ?)', (username, media_id, rating))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO feedback (username, anime_id, rating) VALUES (?, ?, ?)',
+            (username, media_id, rating)
+        )
+        conn.commit()
 
 @feedback_bp.route('/feedback', methods=['POST'])
 def feedback():

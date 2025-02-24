@@ -1,9 +1,9 @@
-import os
-import sqlite3
+from app.models.recommender import get_recommendations_from_corpus, get_recommendations_from_preferences
 from flask import Blueprint, request, jsonify, current_app
 from app.models.anilist_api import fetch_media_list
 from app.models.corpus import fetch_corpus
-from app.models.recommender import get_recommendations_from_corpus, get_recommendations_from_preferences
+import sqlite3
+import os
 
 recommendations_bp = Blueprint('recommendations', __name__)
 
@@ -12,21 +12,19 @@ def get_db_path():
 
 def get_previous_recommendations(username):
     db_path = get_db_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    cursor.execute('SELECT anime_id FROM recommendations_log WHERE username = ?', (username,))
-    rows = cursor.fetchall()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT anime_id FROM recommendations_log WHERE username = ?', (username,))
+        rows = cursor.fetchall()
     return [str(row[0]) for row in rows]
 
 def log_recommendations(username, recs):
     db_path = get_db_path()
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-    for rec in recs:
-        cursor.execute('INSERT INTO recommendations_log (username, anime_id) VALUES (?, ?)', (username, rec['id']))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(db_path) as conn:
+        cursor = conn.cursor()
+        for rec in recs:
+            cursor.execute('INSERT INTO recommendations_log (username, anime_id) VALUES (?, ?)', (username, rec['id']))
+        conn.commit()
 
 @recommendations_bp.route('/recommendations', methods=['GET'])
 def recommendations_api():

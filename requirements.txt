@@ -1,7 +1,10 @@
 Flask
 requests
 scikit-learn
-numpy
+numpy<2
 flask-limiter
 python-dotenv
 torch
+psutil
+redis
+logging

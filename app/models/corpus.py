@@ -9,6 +9,7 @@ def fetch_corpus(media_type="ANIME"):
           title { romaji }
           genres
           description
+          coverImage { large }
         }
       }
     }

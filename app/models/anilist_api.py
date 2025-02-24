@@ -11,6 +11,7 @@ def fetch_media_list(username, media_type="ANIME"):
               title { romaji }
               genres
               description
+              coverImage { large }
             }
           }
         }

@@ -1,4 +1,4 @@
-# Anime8 API
+# [Anime8 API](https://anime8.tech)
 
 Anime8 API is an asynchronous API built with Flask that provides personalized recommendations for anime and manga. It retrieves a user's media list from Anilist and/or uses provided textual preferences to generate recommendations. The API leverages a simple AI model implemented in PyTorch to score and rank media items based on their genre features and user feedback.
 
@@ -33,11 +33,17 @@ If a username is provided, the API retrieves the user's media list from Anilist 
 - `media_type` (string, optional, default: `ANIME`): The type of media, either `ANIME` or `MANGA`.
 
 **Response Example:**
+
 ```json
 {
   "recommendations": [
-    { "id": 12345, "title": "Example Anime", "score": 8.75 },
-    { "id": 67890, "title": "Another Anime", "score": 7.60 }
+    {
+      "id": 12345,
+      "title": "Example Anime",
+      "score": 8.75,
+      "cover_image": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx21459-RoPwgrZ32gM3.jpg",
+      "description": "What would the world be like if 80 percent of the population manifested extraordinary superpowers called “Quirks” at age four? Heroes and villains would be battling it out everywhere! Becoming a hero would mean learning to use your power, but where would you go to study? U.A. High's Hero Program of course! But what would you do if you were one of the 20 percent who were born Quirkless?<br><br>\n\nMiddle school student Izuku Midoriya wants to be a hero more than anything, but he hasn't got an ounce of power in him. With no chance of ever getting into the prestigious U.A. High School for budding heroes, his life is looking more and more like a dead end. Then an encounter with All Might, the greatest hero of them all gives him a chance to change his destiny…<br><br>\n\n(Source: Viz Media)"
+    }
   ]
 }
 ```
@@ -82,6 +88,32 @@ This endpoint is protected by an API key (via the `x-api-key` header) and is exe
 {
   "message": "Training completed",
   "loss": 0.0543
+}
+```
+
+### Get Statistics
+
+**Endpoint:** `GET /stats`
+
+**Description:**
+Sends the current program statistics, cpu usage, memory usage, uptime.
+
+**Headers:**
+
+  - `X-API-KEY` (string, required): Api key for authorization
+
+**Response Example:**
+
+```json
+{
+    "cpu": "23.7 %",
+    "memory": {
+        "available": "17.09 GB",
+        "percentage": "46.6 %",
+        "total": "32.00 GB",
+        "used": "14.91 GB"
+    },
+    "uptime": "01:14:02"
 }
 ```
 
@@ -141,6 +173,7 @@ python db/setup.py
 - **Access API Endpoints:**
   
   Use your preferred API client (e.g., cURL, Postman) to send requests to endpoints such as:
-    - `GET http://localhost:5000/recommendations`
-    - `POST http://localhost:5000/feedback`
-    - `POST http://localhost:5000/auto_train`
+    - `GET https://api.anime8.tech/recommendations`
+    - `GET https://api.anime8.tech/stats`
+    - `POST https://api.anime8.tech/feedback`
+    - `POST https://api.anime8.tech/auto_train`
