@@ -1,3 +1,7 @@
+<div align="center">
+  <a href="https://anime8.tech"><img src="https://anime8.tech/logo.png" alt="logo" /></a>
+</div>
+
 # [Anime8 API](https://anime8.tech)
 
 Anime8 API is an asynchronous API built with Flask that provides personalized recommendations for anime and manga. It retrieves a user's media list from Anilist and/or uses provided textual preferences to generate recommendations. The API leverages a simple AI model implemented in PyTorch to score and rank media items based on their genre features and user feedback.

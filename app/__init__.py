@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 
 def create_app():
     app = Flask(__name__, static_folder="../docs", static_url_path="/static")
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
     app.config['AUTO_TRAIN_API_KEY'] = os.getenv('AUTO_TRAIN_API_KEY', 'my_secret_key')
     app.config['DB_NAME'] = os.getenv('DB_NAME', 'media_feedback.db')
