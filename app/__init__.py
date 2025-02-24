@@ -2,7 +2,7 @@ from flask import Flask, request, send_from_directory, g, jsonify
 from flask_limiter.util import get_remote_address
 from flask_limiter import Limiter
 from dotenv import load_dotenv
-from flask-cors import CORS
+from flask_cors import CORS
 from redis import Redis
 import logging
 import time
