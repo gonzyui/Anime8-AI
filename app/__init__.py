@@ -60,6 +60,22 @@ def create_app():
         }
         return jsonify(response), 500
 
+    @app.errorhandler(401)
+    def unauthorized(error):
+        response = {
+            "error": "Unauthorized",
+            "message": "Unauthorized.",
+        }
+        return jsonify(response), 401
+
+    @app.errorhandler(429)
+    def forbidden(error):
+        response = {
+            "error": "Forbidden",
+            "message": "You are being rate-limited.",
+        }
+        return jsonify(response), 403
+
     from app.routes.recommendations import recommendations_bp
     app.register_blueprint(recommendations_bp)
     from app.routes.auto_train import auto_train_bp
