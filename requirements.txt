@@ -3,6 +3,7 @@ requests
 scikit-learn
 numpy<2
 flask-limiter
+flask-cors
 python-dotenv
 torch
 psutil

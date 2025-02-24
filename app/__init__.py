@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory, g, jsonify
 from flask_limiter.util import get_remote_address
 from flask_limiter import Limiter
 from dotenv import load_dotenv
+from flask-cors import CORS
 from redis import Redis
 import logging
 import time
@@ -16,6 +17,8 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'default_secret')
     app.config['AUTO_TRAIN_API_KEY'] = os.getenv('AUTO_TRAIN_API_KEY', 'my_secret_key')
     app.config['DB_NAME'] = os.getenv('DB_NAME', 'media_feedback.db')
+
+    CORS(app)
 
     redis_client = Redis(host='localhost', port=6379, db=0)
 
