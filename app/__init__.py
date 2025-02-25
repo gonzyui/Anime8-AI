@@ -29,7 +29,7 @@ def create_app():
         storage_uri="redis://" + os.getenv("REDIS_HOST") + ":6379",
         default_limits=["200 per day", "20 per hour"],
     )
-    logging.info("Limiter configured with Redis.")
+    logging.info("Limiter configured with Redis")
 
     @app.before_request
     def before_request():
