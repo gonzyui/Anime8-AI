@@ -21,7 +21,7 @@ def create_app():
     app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-    redis_client = Redis(host='redis-container', port=6379, db=0)
+    redis_client = Redis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
 
     limiter = Limiter(
         app=app,
