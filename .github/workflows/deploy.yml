@@ -31,6 +31,11 @@ jobs:
           
           docker system prune -af
           
+          echo "AUTO_TRAIN_API_KEY=${{ secrets.API_KEY }}" >> .env
+          echo "SECRET_KEY=${{ secrets.KEY }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
+          
           docker build --no-cache -t anime8 .
-          docker run -d -p 5000:5000 --name anime8 anime8
+          docker run -d --env-file .env -p 5000:5000 --name anime8 anime8
           EOF
