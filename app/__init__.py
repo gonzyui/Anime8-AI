@@ -21,12 +21,12 @@ def create_app():
     app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-    redis_client = Redis(host='localhost', port=6379, db=0)
+    redis_client = Redis(host='redis-container', port=6379, db=0)
 
     limiter = Limiter(
         app=app,
         key_func=get_remote_address,
-        storage_uri="redis://localhost:6379",
+        storage_uri="redis://redis-container:6379",
         default_limits=["200 per day", "20 per hour"],
     )
     logging.info("Limiter configured with Redis.")
