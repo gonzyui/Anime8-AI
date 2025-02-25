@@ -8,4 +8,4 @@ python-dotenv
 torch
 psutil
 redis
-uvicorn
+gunicorn
