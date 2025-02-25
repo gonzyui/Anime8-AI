@@ -26,7 +26,7 @@ def create_app():
     limiter = Limiter(
         app=app,
         key_func=get_remote_address,
-        storage_uri="redis://redis-container:6379",
+        storage_uri="redis://" + os.getenv("REDIS_HOST") + ":6379",
         default_limits=["200 per day", "20 per hour"],
     )
     logging.info("Limiter configured with Redis.")
