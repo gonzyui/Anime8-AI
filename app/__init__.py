@@ -26,7 +26,7 @@ def create_app():
     def rate_limit_key():
         api_key = request.headers.get('X-API-KEY')
         if api_key and api_key == app.config['AUTO_TRAIN_API_KEY']:
-            return None
+            return "unlimited"
         return get_remote_address()
 
     limiter = Limiter(
@@ -35,6 +35,7 @@ def create_app():
         storage_uri="redis://" + os.getenv("REDIS_HOST") + ":6379",
         default_limits=["200 per day", "20 per hour"],
     )
+    limiter.limit("200 per day")(lambda: None)
     logging.info("Limiter configured with Redis")
 
     @app.before_request
