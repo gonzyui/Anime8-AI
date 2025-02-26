@@ -23,9 +23,15 @@ def create_app():
 
     redis_client = Redis(host=os.getenv('REDIS_HOST'), port=6379, db=0)
 
+    def rate_limit_key():
+        api_key = request.headers.get('X-API-KEY')
+        if api_key and api_key == app.config['AUTO_TRAIN_API_KEY']:
+            return None
+        return get_remote_address()
+
     limiter = Limiter(
         app=app,
-        key_func=get_remote_address,
+        key_func=rate_limit_key,
         storage_uri="redis://" + os.getenv("REDIS_HOST") + ":6379",
         default_limits=["200 per day", "20 per hour"],
     )
@@ -34,8 +40,6 @@ def create_app():
     @app.before_request
     def before_request():
         g.start_time = time.time()
-        if request.headers.get("X-API-KEY") == app.config.get("AUTO_TRAIN_API_KEY"):
-            request.environ["flask_limiter.enabled"] = False
 
     @app.after_request
     def after_request(response):

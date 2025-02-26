@@ -9,4 +9,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "[ ! -f db/media_feedback.db ] && python db/setup.py; python run.py"]
+CMD ["sh", "-c", "[ ! -f db/media_feedback.db ] && python db/setup.py; gunicorn -w 4 -b 0.0.0.0:5000 run:app"]
