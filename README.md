@@ -19,7 +19,7 @@ Anime8 API is an asynchronous API built with Flask that provides personalized re
 
 ## Overview
 
-The Anime8 API provides personalized recommendations for anime and manga. It fetches data from the Anilist GraphQL API and uses user-provided preferences or a user's media list to generate recommendations. The recommendation engine is powered by a custom PyTorch model (named **RecommenderNet**) that uses genre information to compute a suitability score for each media item. Feedback from users is stored in a SQLite database and can be used to retrain the model via an auto-training endpoint.
+The Anime8 API provides personalized recommendations for anime and manga. It fetches data from the Anilist GraphQL API and uses user-provided preferences or a user's media list to generate recommendations. The recommendation engine is powered by a custom PyTorch model (named **Luminet**) that uses genre information to compute a suitability score for each media item. Feedback from users is stored in a SQLite database and can be used to retrain the model via an auto-training endpoint.
 
 ## API Endpoints
 
@@ -123,7 +123,7 @@ Sends the current program statistics, cpu usage, memory usage, uptime.
 
 ### Model Explanation
 
-The recommendation model, **RecommenderNet**, is implemented in PyTorch as a simple feed-forward neural network:
+The recommendation model, **Luminet**, is implemented in PyTorch as a simple feed-forward neural network:
 
 - **Input:**
 
